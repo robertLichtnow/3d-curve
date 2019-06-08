@@ -5,7 +5,7 @@ package edu.udc.cg;
  */
 public class Calculator {
 
-    static double drawX = 0, drawY = 0;
+    static double drawX = 0, drawY = 0, t = 0;
 
     static double calculatePositionX(double viewFrom[], double viewTo[], double x, double y, double z){
         setVariables(viewFrom, viewTo, x, y, z);
@@ -28,7 +28,7 @@ public class Calculator {
         Vector viewToPoint = new Vector(x - viewFrom[0], y - viewFrom[1], z - viewFrom[2]);
         
         // Parametrizando a função para descobrir aonde o ponto calculado colido com o vetor view to point nos planos 
-		double t = (viewVector.x * viewTo[0] + viewVector.y*viewTo[1] + viewVector.z*viewTo[2]
+		t = (viewVector.x * viewTo[0] + viewVector.y*viewTo[1] + viewVector.z*viewTo[2]
 			   	-  (viewVector.x * viewFrom[0] + viewVector.y*viewFrom[1] + viewVector.z*viewFrom[2]))
 				/  (viewVector.x * viewToPoint.x + viewVector.y*viewToPoint.y + viewVector.z*viewToPoint.z);
 		

@@ -10,6 +10,7 @@ import java.awt.Polygon;
 public class PolygonObject {
     Polygon polygon;
     Color color;
+    double avgDistance = 0;
 
     public PolygonObject(double[] x, double[] y, Color c){
         Screen.numberOfPolygons++;
@@ -24,7 +25,9 @@ public class PolygonObject {
 
     void drawPolygon(Graphics g){
         g.setColor(this.color);
-        g.fillPolygon(this.polygon);
+        g.fillPolygon(polygon);
+        g.setColor(Color.BLACK);
+        g.drawPolygon(polygon);
     }
 
 }
