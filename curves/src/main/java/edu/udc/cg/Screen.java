@@ -18,28 +18,40 @@ public class Screen extends JPanel implements KeyListener {
 
     PolygonObject polygon;
 
-    static double[] viewFrom = new double[] { 10, 10, 10 };
-    static double[] viewTo = new double[] { -10, 0, 0 };
+    static double[] viewFrom = new double[] { 1,10, 20};
+    static double[] viewTo = new double[] { 1, 1, 1 }; //Olhando pro centro do cubo
 
     static PolygonObject3D[] polygons3D = new PolygonObject3D[100];
     static PolygonObject[] drawablePolygons = new PolygonObject[100];
     static int numberOfPolygons = 0;
     static int numberOfPolygons3D = 0;
     int[] newOrder;
+    Vector middlePoint = new Vector(1,1,1);
+
+    Vector[] bezierPoints;
+    int currentBezierPoint = 0;
+
+    double bezierParameter = 0;
+    double bezierFactor = 0.05;
+
+    Vector[] controlPoints = {new Vector(0.75,3.45,1), new Vector(0.5,14.35,0), new Vector(12.15,14.64,0), new Vector(10.95,2.56,0)};
 
     public Screen() {
         polygons3D[numberOfPolygons3D] = new PolygonObject3D(new double[]{0, 2, 2, 0}, new double[]{0, 0, 2, 2},
                 new double[] {0, 0, 0, 0 }, Color.GRAY);
         polygons3D[numberOfPolygons3D] = new PolygonObject3D(new double[]{0, 2, 2, 0}, new double[]{0, 0, 2, 2},
-                new double[] {3, 3, 3, 3 }, Color.GRAY);
+                new double[] {2, 2, 2, 2 }, Color.GRAY);
         polygons3D[numberOfPolygons3D] = new PolygonObject3D(new double[]{0, 2, 2, 0}, new double[]{0, 0, 0, 0},  
-                new double[]{0, 0, 3, 3}, Color.GRAY);
+                new double[]{0, 0, 2, 2}, Color.GRAY);
         polygons3D[numberOfPolygons3D] = new PolygonObject3D(new double[]{0, 2, 2, 0}, new double[]{2, 2, 2, 2},  
-                new double[]{0, 0, 3, 3}, Color.gray);
+                new double[]{0, 0, 2, 2}, Color.gray);
         polygons3D[numberOfPolygons3D] = new PolygonObject3D(new double[]{0, 0, 0, 0}, new double[]{0, 2, 2, 0},  
-                new double[]{0, 0, 3, 3}, Color.gray);
+                new double[]{0, 0, 2, 2}, Color.gray);
         polygons3D[numberOfPolygons3D] = new PolygonObject3D(new double[]{2, 2, 2, 2}, new double[]{0, 2, 2, 0},  
-                new double[]{0, 0, 3, 3}, Color.gray);
+                new double[]{0, 0, 2, 2}, Color.gray);
+
+        calculateBezier();
+        startBezier();
 
         addKeyListener(this);
         setFocusable(true);
@@ -103,6 +115,69 @@ public class Screen extends JPanel implements KeyListener {
         }
     }
 
+    void updateBezierForwardPosition(){
+        if(this.currentBezierPoint == 19)
+            return;
+        
+        Vector factor = this.bezierPoints[currentBezierPoint+1].vectorDifference(this.bezierPoints[currentBezierPoint]);
+
+        this.translateObject(factor);
+
+        this.currentBezierPoint++;
+    }
+
+    void updateBezierBackwardPosition(){
+        if(this.currentBezierPoint == 0)
+            return;
+        
+        Vector factor = this.bezierPoints[currentBezierPoint-1].vectorDifference(this.bezierPoints[currentBezierPoint]);
+
+        this.translateObject(factor.multiplyClone(3));
+
+        this.currentBezierPoint--;
+    }
+
+    void startBezier(){
+        Vector vector = new Vector(0,0,0);
+        for(int i=0;i<numberOfPolygons3D;i++){
+            Vector middle = polygons3D[i].getMiddlePoint();
+            vector.x += middle.x;
+            vector.y += middle.y;
+            vector.z += middle.z;
+        }
+        vector.x /=numberOfPolygons3D;
+        vector.y /=numberOfPolygons3D;
+        vector.z /=numberOfPolygons3D;
+
+        this.translateObject(vector.vectorDifference(controlPoints[0]));
+        
+        System.out.println(polygons3D[0].getMiddlePoint().toString());
+    }
+
+    void translateObject(Vector factor){
+        for(int i=0;i<numberOfPolygons3D;i++){
+            polygons3D[i].translate(factor);
+        }
+    }
+
+    public void calculateBezier() {
+        this.bezierPoints = new Vector[20];
+        double t = 0;
+        for(int i=0;i<20;i++){
+            double tx = (Math.pow((1 - t), 3) * controlPoints[0].x + (3 * t) * Math.pow((1 - t), 2) * controlPoints[1].x
+					+ Math.pow((3 * t), 2) * (1 - t) * controlPoints[2].x + Math.pow(t, 3) * controlPoints[3].x);
+			double ty =  (Math.pow((1 - t), 3) * controlPoints[0].y + (3 * t) * Math.pow((1 - t), 2) * controlPoints[1].y
+                    + Math.pow((3 * t), 2) * (1 - t) * controlPoints[2].y + Math.pow(t, 3) * controlPoints[3].y);
+			double tz =  (Math.pow((1 - t), 3) * controlPoints[0].z + (3 * t) * Math.pow((1 - t), 2) * controlPoints[1].z
+                    + Math.pow((3 * t), 2) * (1 - t) * controlPoints[2].z + Math.pow(t, 3) * controlPoints[3].z);
+
+            this.bezierPoints[i] = new Vector(tx, ty, tz);
+            System.out.println(this.bezierPoints[i].toString());
+                    
+            t += this.bezierFactor;
+        }
+    }
+    
     @Override
     public void keyTyped(KeyEvent e) {
         
@@ -110,14 +185,10 @@ public class Screen extends JPanel implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_LEFT)
-            viewFrom[0]--;
         if(e.getKeyCode() == KeyEvent.VK_RIGHT)
-            viewFrom[0]++;
-        if(e.getKeyCode() == KeyEvent.VK_UP)
-            viewFrom[1]++;
-        if(e.getKeyCode() == KeyEvent.VK_DOWN)
-            viewFrom[1]--;
+            updateBezierForwardPosition();   
+        if(e.getKeyCode() == KeyEvent.VK_LEFT)
+            updateBezierBackwardPosition();
     }
 
     @Override

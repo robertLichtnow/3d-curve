@@ -29,4 +29,17 @@ public class Vector {
         );
     }
 
+    Vector vectorDifference(Vector v){
+        return new Vector(this.x - v.x, this.y - v.y, this.z - v.z);
+    }
+
+    Vector multiplyClone(double factor){
+        return new Vector(this.x*factor, this.y*factor, this.z*factor);
+    }
+
+    @Override
+    public String toString() {
+        return "Vector [x=" + x + ", y=" + y + ", z=" + z + "]";
+    }
+
 }
