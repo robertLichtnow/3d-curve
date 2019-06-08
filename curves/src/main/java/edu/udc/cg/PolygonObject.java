@@ -11,10 +11,12 @@ public class PolygonObject {
     Polygon polygon;
     Color color;
 
-    public PolygonObject(int[] x, int[] y, Color c){
+    public PolygonObject(double[] x, double[] y, Color c){
+        Screen.numberOfPolygons++;
         Polygon p = new Polygon();
-        p.xpoints = x;
-        p.ypoints = y;
+        for(int i=0; i<x.length; i++){
+            p.addPoint((int)x[i], (int)y[i]);
+        }
         p.npoints = x.length;
         this.polygon = p;
         this.color = c;
@@ -22,7 +24,7 @@ public class PolygonObject {
 
     void drawPolygon(Graphics g){
         g.setColor(this.color);
-        g.drawPolygon(this.polygon);
+        g.fillPolygon(this.polygon);
     }
 
 }
